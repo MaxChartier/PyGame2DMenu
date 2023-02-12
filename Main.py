@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import button
 from pygame import mixer
@@ -36,7 +38,6 @@ video_img = pygame.image.load('Images/button_video.png')
 audio_img = pygame.image.load('Images/button_audio.png')
 keys_img = pygame.image.load('Images/button_keys.png')
 back_img = pygame.image.load('Images/button_back.png')
-music1_img = pygame.image.load('Images/Music1.png')
 
 # create button instances
 resume_button = button.Button(304, 125, resume_img, 1)
@@ -46,7 +47,6 @@ video_button = button.Button(226, 75, video_img, 1)
 audio_button = button.Button(225, 150, audio_img, 1)
 keys_button = button.Button(246, 295, keys_img, 1)
 back_button = button.Button(332, 430, back_img, 1)
-music1_button = button.Button(304, 125, music1_img, 1)
 
 
 def draw_text(text, font, text_col, x, y):
@@ -99,8 +99,7 @@ while run:
             font = pygame.font.SysFont(None, 20)
             img = font.render('Press esc to go back to the settings', True, (255, 255, 255))
             screen.blit(img, (10, 10))
-            if music1_button.draw(screen):
-                game_paused = False
+
     else:
         draw_text("Press Echap to pause", font, TEXT_COL, 160, 250)
 
