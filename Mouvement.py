@@ -32,6 +32,7 @@ pygame.display.set_caption("Main Menu")
 game_paused = False
 menu_state = "main"
 lifes1 = 3
+lifes2 = 3
 
 # define fonts
 font = pygame.font.SysFont("arial black", 40)
@@ -83,7 +84,9 @@ clock = pygame.time.Clock()
 # Add player sprite
 image = pygame.image.load(r'Images/Player_image.png')
 image2 = pygame.image.load(r'Images/Player_image1.png')
-fire1 = pygame.image.load(r'Images/ball1.png')
+shoot1 = pygame.image.load(r'Images/ball1.png')
+shoot2 = pygame.image.load(r'Images/ball2.png')
+
 # Store the initial
 # coordinates of the player in
 # two variables i.e. x and y.
@@ -93,7 +96,8 @@ x = 150
 y = 396
 xb = -800
 yb = -800
-
+xb1 = -800
+yb1 = -800
 # Create a variable to store the
 # velocity of player's movement
 velocity = 1
@@ -158,7 +162,7 @@ while run:
         screen.blit(img, (130, 50))
         img = font.render('Lives =', True, (0, 150, 0))
         screen.blit(img, (650, 50))
-        img = font.render(str(lifes1), 1, (0, 150, 0))
+        img = font.render(str(lifes2), 1, (0, 150, 0))
         screen.blit(img, (730, 50))
         # Set the frame rates to 60 fps
         clock.tick(60)
@@ -212,14 +216,15 @@ while run:
 
         # Filling the background with
         # white color
-        if direction == True:
+        if direction:
             window.blit(image, (x, y))
-        if direction == False:
+        if not direction:
             window.blit(pygame.transform.flip(image, True, False), (x, y))
 
         # Display the player sprite at x
         # and y coordinates
-        window.blit(fire1, (xb, yb))
+        window.blit(shoot1, (xb, yb))
+        window.blit(shoot2, (xb1, yb1))
         window.blit(image, (x, y))
         window.blit(image2, (x1, y1))
         if (x - 25 < xb < x + 25) and (y - 25 < yb < y + 25):
@@ -290,13 +295,20 @@ while run:
         xb = x1
         yb = y1
         Fire = True
+    if key_pressed_is[K_p]:
+        xb1 = x
+        yb1 = y
+        Fire1 = True
     if Fire:
         xb -= 4
         yb += 0.3
-    if (xb < -30 or xb > 730):
+    if Fire1:
+        xb1 +=4
+        yb1 +=0.3
+    if xb < -30 or xb > 730:
         Fire = False
         xb = 800
-    if (yb < 350 or yb > 600):
+    if yb < 350 or yb > 600:
         Fire = False
         yb = 800
     # Draws the surface
