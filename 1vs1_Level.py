@@ -105,7 +105,7 @@ mixer.music.play()
 music = True
 Time=0
 Time2=0
-
+KeyTime = False
 # create game window
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -161,6 +161,7 @@ Fire = False
 Fire1 = False
 v_new = 5
 m_new = 1
+
 
 # Add caption in the window
 pygame.display.set_caption('Player Movement')
@@ -232,8 +233,6 @@ while run:
             font = pygame.font.SysFont(None, 30)
             img = font.render('The winner is the green player', True, (150, 0, 150))
             screen.blit(img, (250, 50))
-            if key_pressed_is[K_l]:
-                lifes2 += 3
         elif (lifes1 != 0) and (lifes2 != 0):
             if jump == False:
                 # if space bar is pressed
@@ -380,6 +379,8 @@ while run:
             else:
                 directionArrow2 = False
             Fire = True
+        else:
+            KeyTime = False
         if key_pressed_is[K_p]:
             xb1 = x
             xp = x
@@ -392,6 +393,7 @@ while run:
             Fire1 = True
         if Fire:
                 if directionArrow2:
+                    A1=90
                     Time2 += 0.05
                     VitesseI = 70
                     Angle = -230
@@ -411,6 +413,7 @@ while run:
             yb = 0
         if Fire1:
             if directionArrow:
+
                 Time += 0.05
                 VitesseI = 70
                 Angle = -230

@@ -1,60 +1,30 @@
 # Importing pygame module
-import time
-
-import pygame
+import random
 from pygame.locals import *
-import button
 import pygame.display
-import pytmx
-import pyscroll
+import math
 
-screen = pygame.display.set_mode((800,600))
+screen = pygame.display.set_mode((800, 600))
 
 # initiate pygame and give permission
 # to use pygame's functionality.
 pygame.init()
-
 # create the display surface object
 # of specific dimension.
-window = pygame.display.set_mode((600, 600))
-
-# create game window
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Main Menu")
+pygame.display.set_caption("Arcane Archer")
 
 # game variables
 Game_over = False
 game_paused = False
 menu_state = "main"
-lifes1 = 3
-
+lifes = 3
+score = 0
 
 # define fonts
 font = pygame.font.SysFont("arial black", 40)
 
 # define colours
 TEXT_COL = (255, 255, 255)
-
-# load button images
-resume_img = pygame.image.load("Images/button_resume.png")
-options_img = pygame.image.load("Images/button_options.png")
-quit_img = pygame.image.load("Images/button_quit.png")
-video_img = pygame.image.load('Images/button_video.png')
-audio_img = pygame.image.load('Images/button_audio.png')
-keys_img = pygame.image.load('Images/button_keys.png')
-back_img = pygame.image.load('Images/button_back.png')
-
-# create button instances
-resume_button = button.Button(304, 125, resume_img, 1)
-options_button = button.Button(297, 250, options_img, 1)
-quit_button = button.Button(336, 375, quit_img, 1)
-video_button = button.Button(226, 75, video_img, 1)
-audio_button = button.Button(225, 150, audio_img, 1)
-keys_button = button.Button(246, 295, keys_img, 1)
-back_button = button.Button(332, 430, back_img, 1)
 
 
 def draw_text(text, font, text_col, x, y):
@@ -67,6 +37,7 @@ direction = True
 jump = False
 v_new = 5
 m_new = 1
+Time = 0
 
 # Add caption in the window
 pygame.display.set_caption('Player Movement')
@@ -77,31 +48,35 @@ pygame.display.set_caption('Player Movement')
 clock = pygame.time.Clock()
 
 # Add player sprite
-player_images = []
-player_images.append( pygame.image.load(r'Images/Player_image1.gif') )
-player_images.append( pygame.image.load('Images/Player_image1.2.png') )
 image = pygame.image.load(r"Images/Player_image1.gif")
 image = pygame.transform.scale(image, (66, 90))
-walking = False
-walking_steps = 0
-player_current = 0
-player = player_images[ player_current ]
-
-if map == 1:
-    window.fill((155,155,155))
-    pygame.draw.line(window, (100, 100, 250), (0, 500), (1000, 500), 75)
-if map == 2:
-    window.fill((155,0,155))
-    pygame.draw.line(window, (100, 100, 250), (0, 500), (1000, 500), 75)
+pv_image = pygame.image.load("Images/PV/1_life.png")
+background_image = pygame.image.load("Images/background_for_game.jpg")
+arrow_image = pygame.image.load("Images/ball2.png")
+zombie_image = pygame.image.load("Images/zombie.png")
+zombie_image = pygame.transform.scale(zombie_image, (66, 90))
+zombie_x = 600
+zombie_y = 450
 
 # Store the initial
 # coordinates of the player in
 # two variables i.e. x and y.
-x1 = 600
-y1 = 420
-x = 150
-y = 420
+x = 50
+y = 450
 
+walking = False
+walking_steps = 0
+player_current = 0
+arrow_x = x
+arrow_y = y
+arrow_speed = 5
+arrow_angle = 0
+arrow_fired = False
+arrow_velocity_x = 0
+arrow_velocity_y = 0
+gravity = 0.1  # set gravity
+shot_strength = 0.8  # set initial shot strength
+shot_strength_scale = 3.2  # set shot strength scale
 
 # Create a variable to store the
 # velocity of player's movement
@@ -111,38 +86,38 @@ mass = 1
 vel1 = 10
 mass1 = 1
 
-
 # Creating an Infinite loop
 run = True
 map = 1
 while run:
-    if walking == True:
-        # here you need to check some counter
-        # if it is time for next step to walk slower
-        # but don't use `time.sleep()`
-        if walking_steps > 0:
-            player_current = (player_current + 1) % len(player_images)
-            player = player_images[player_current]
-            walking_steps -= 10
-        else:
-            walking = False
+    if lifes==1:
+        pv_image == pygame.image.load("Images/PV/1_life.png")
+    if lifes== 2:
+        pv_image == pygame.image.load("Images/PV/2_lifes.png")
+    if lifes == 3:
+        pv_image == pygame.image.load("Images/PV/3_lifes.jpg")
     key_pressed_is = pygame.key.get_pressed()
-    if map == 1:
-        window.fill((155, 155, 155))
-        pygame.draw.line(window, (100, 100, 250), (0, 500), (1000, 500), 75)
-    if map == 2:
-        window.fill((155, 0, 155))
-        pygame.draw.line(window, (100, 100, 250), (0, 500), (1000, 500), 75)
-    if game_paused == False:
-        font = pygame.font.SysFont(None, 30)
-        img = font.render('Lives =', True, (0, 10, 90))
-        screen.blit(img, (50, 50))
-        img = font.render(str(lifes1), 1, (0, 10, 90))
-        screen.blit(img, (130, 50))
+    if not game_paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+                quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and not arrow_fired:
+                arrow_fired = True
+                arrow_x = x
+                arrow_y = y
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                arrow_angle = math.atan2(y + 25 - mouse_y, x + 50 - mouse_x)
+                arrow_velocity_x = -arrow_speed * math.cos(arrow_angle) * shot_strength
+                arrow_velocity_y = -arrow_speed * math.sin(arrow_angle) * shot_strength
+                shot_strength = 0.8
+            elif event.type == pygame.KEYDOWN and not arrow_fired and event.key == pygame.K_l:
+                shot_strength = min(2.0, shot_strength + 0.4)
         # Set the frame rates to 60 fps
         clock.tick(60)
-        if (lifes1 != 0):
-            if jump == False:
+        if lifes != 0:
+            if not jump:
                 # if space bar is pressed
                 if key_pressed_is[pygame.K_SPACE]:
                     # make is jump equal to True
@@ -166,26 +141,11 @@ while run:
                     vel = 9
                     mass = 1
 
-
-            if direction:
-                window.blit(pygame.transform.flip(player, True, False), (x, y))
-            if not direction:
-                window.blit(player, (x, y))
-
-
             # iterate over the list of Event objects
             # that was returned by pygame.event.get() method.
-            for event in pygame.event.get():
-              if event.type == pygame.QUIT:
-                run = False
-                pygame.quit()
-                quit()
-
         # of the player
         if key_pressed_is[K_q]:
             x -= 3
-            walking = True
-            walking_steps = 5
             if x < -20:
                 x = 740
                 if map == 2:
@@ -193,14 +153,83 @@ while run:
             direction = False
         if key_pressed_is[K_d]:
             x += 3
+            direction = True
             if x > 740:
                 x = -20
-                window.fill((255, 255, 255))
-                if map == 1:
-                    map = 2
+                screen.fill((255, 255, 255))
+
+    if arrow_fired:
+        arrow_x += arrow_velocity_x
+        arrow_y += arrow_velocity_y
+        arrow_velocity_y += gravity
+
+    if arrow_fired:
+        if (zombie_x - 30 < arrow_x < zombie_x + 30) and (zombie_y - 20 < arrow_y < zombie_y + 40):
+            score +=10
+            arrow_fired = False
+            zombie_x = random.randint(0, 600)
+            if (x + 40 >= zombie_x >= x - 40):
+                zombie_x = random.randint(0, 600)
+            if zombie_x > x:
+                zombie_image = (pygame.transform.flip(zombie_image, True, False))
+            else:
+                zombie_image = zombie_image
+    if (x+20 >= zombie_x >= x-20):
+        lifes -= 1;
+        zombie_x = random.randint(0, 600)
+        if (x+40 >= zombie_x >= x-40):
+            zombie_x = random.randint(0, 600)
+    if zombie_x > x:
+        zombie_x -= score/200
+    else:
+        zombie_x += score/200
+
+        # Check for collisions with ground
+    if arrow_y + arrow_image.get_height() > 750:
+        arrow_fired = False
+        arrow_velocity_x = 0
+        arrow_velocity_y = 0
+
+    if direction:
+        screen.blit(background_image, (0, 0))
+        screen.blit(pygame.transform.flip(image, True, False), (x, y))
+    if not direction:
+        screen.blit(background_image, (0, 0))
+        screen.blit(image, (x, y))
+
+    screen.blit(zombie_image, (zombie_x, zombie_y))
 
 
-            direction = True
+    if arrow_y + arrow_image.get_height() > 550:
+        arrow_fired = False
+        arrow_velocity_x = 0
+        arrow_velocity_y = 0
 
+    # Draw arrow if fired
+    if arrow_fired:
+        screen.blit(pygame.transform.rotate(arrow_image, math.degrees(-arrow_angle)), (arrow_x, arrow_y))
+        if x<arrow_x:
+            arrow_angle += shot_strength/60
+        if x>arrow_x:
+            arrow_angle -= shot_strength/60
+    # Draw shot strength meter
+    pygame.draw.rect(screen, (255, 255, 255), (25, 25, 10, 100))
+    meter_height = int(shot_strength / shot_strength_scale * 160)
+    pygame.draw.rect(screen, (181, 154, 84), (25, 125 - meter_height, 10, meter_height))
 
-    pygame.display.update()
+    font = pygame.font.SysFont(None, 30)
+    img = font.render('Lives =', True, (0, 10, 90))
+    screen.blit(img, (50, 50))
+    img = font.render(str(lifes), 1, (0, 10, 90))
+    screen.blit(img, (130, 50))
+    img = font.render('score =', True, (0, 30, 90))
+    screen.blit(img, (50, 80))
+    img = font.render(str(score), 1, (0, 10, 90))
+    screen.blit(img, (130, 80))
+    # Update screen
+    pygame.display.flip()
+    if lifes == 0:
+        print("You lost!")
+
+# Quit Pygame
+pygame.quit()
